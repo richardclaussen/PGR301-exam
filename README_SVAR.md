@@ -19,3 +19,8 @@ docker run --rm -p 9999:8080 -v "$HOME/.aws:/root/.aws:ro" -e AWS_PROFILE=defaul
 
 ### Link til grønn workflow-kjøring:
 https://github.com/richardclaussen/PGR301-exam/actions/runs/42619784601
+
+## 2A
+
+### Offentlig URL til tjenesten:
+https://wi-f311228998ee485590d9ca0f43074768.ecs.eu-west-1.on.aws
