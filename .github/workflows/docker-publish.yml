@@ -40,3 +40,40 @@ jobs:
 
           docker push ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
           docker push ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+
+  terraform:
+    name: Apply Terraform infrastructure
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Check Terraform formatting
+        working-directory: infra
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        working-directory: infra
+        run: terraform init -input=false
+
+      - name: Terraform apply
+        working-directory: infra
+        run: |
+          terraform apply \
+            -input=false \
+            -auto-approve \
+            -var="aws_region=${{ env.AWS_REGION }}" \
+            -var="candidate_number=50" \
+            -var="image_tag=${{ github.sha }}"
