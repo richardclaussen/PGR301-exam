@@ -24,3 +24,7 @@ https://github.com/richardclaussen/PGR301-exam/actions/runs/42619784601
 
 ### Offentlig URL til tjenesten:
 https://wi-f311228998ee485590d9ca0f43074768.ecs.eu-west-1.on.aws
+
+## 2B
+
+#### Valgt nøkkel for remote state er "wishifai/50/terraform.tfstate" 
