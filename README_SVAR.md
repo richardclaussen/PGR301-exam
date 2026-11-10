@@ -34,3 +34,6 @@ https://wi-f311228998ee485590d9ca0f43074768.ecs.eu-west-1.on.aws
 #### Det er fornuftig å kjøre Terraform etter container-builden fordi Docker-imaget må være publisert til ECR før ECS kan starte eller oppdatere tjenesten med den nye versjonen. Terraform-jobben bruker commit-SHA'en som image tag. Kjøring av Terraform før eller parallelt kan resultere i at deployen enten feiler siden det ikke finnes noe image i ECR enda, eller at en eldre image-versjon blir brukt.
 
 ### Link til grønn workflow-kjøring:
+https://github.com/richardclaussen/PGR301-exam/actions/runs/42664430007
+
+## 3A
