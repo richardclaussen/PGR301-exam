@@ -11,6 +11,8 @@ import software.amazon.awssdk.services.bedrockruntime.model.ConversationRole;
 import software.amazon.awssdk.services.bedrockruntime.model.ConverseRequest;
 import software.amazon.awssdk.services.bedrockruntime.model.ConverseResponse;
 import software.amazon.awssdk.services.bedrockruntime.model.Message;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,16 +26,23 @@ public class BedrockService {
 
     private final BedrockRuntimeClient client;
     private final String modelId;
+    private final Timer bedrockTimer;
 
     public BedrockService(BedrockRuntimeClient client,
-                          @Value("${app.bedrock.model-id}") String modelId) {
+            MeterRegistry meterRegistry,
+            @Value("${app.bedrock.model-id}") String modelId) {
         this.client = client;
         this.modelId = modelId;
+        this.bedrockTimer = Timer.builder("wishifai.bedrock.duration")
+                .description("Time Bedrock uses to generate a gift suggestion")
+                .register(meterRegistry);
     }
 
     /**
-     * Denne måten å lage prompt på kalles "chain-of-thought" og kan være veldig effektivt
+     * Denne måten å lage prompt på kalles "chain-of-thought" og kan være veldig
+     * effektivt
      * Dette er også et eksempel på negative prompting
+     * 
      * @param labels
      * @return
      */
@@ -86,16 +95,22 @@ public class BedrockService {
                 }
                 """.formatted(String.join(", ", labels));
 
-        ConverseResponse resp = client.converse(ConverseRequest.builder()
-                .modelId(modelId)
-                .messages(Message.builder()
-                        .role(ConversationRole.USER)
-                        .content(ContentBlock.fromText(prompt))
-                        .build())
-                .build());
+        Timer.Sample sample = Timer.start();
 
-        String text = resp.output().message().content().get(0).text();
-        return parseAnalysis(text);
+        try {
+            ConverseResponse resp = client.converse(ConverseRequest.builder()
+                    .modelId(modelId)
+                    .messages(Message.builder()
+                            .role(ConversationRole.USER)
+                            .content(ContentBlock.fromText(prompt))
+                            .build())
+                    .build());
+
+            String text = resp.output().message().content().get(0).text();
+            return parseAnalysis(text);
+        } finally {
+            sample.stop(bedrockTimer);
+        }
     }
 
     private GiftAnalysis parseAnalysis(String text) {
@@ -107,8 +122,7 @@ public class BedrockService {
             return new GiftAnalysis(
                     "(ukjent)",
                     "(kunne ikke parse svar)",
-                    List.of(new GiftSuggestion("(ukjent format)", text))
-            );
+                    List.of(new GiftSuggestion("(ukjent format)", text)));
         }
     }
 }

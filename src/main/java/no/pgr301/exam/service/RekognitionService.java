@@ -7,6 +7,8 @@ import software.amazon.awssdk.services.rekognition.model.DetectLabelsRequest;
 import software.amazon.awssdk.services.rekognition.model.DetectLabelsResponse;
 import software.amazon.awssdk.services.rekognition.model.Image;
 import software.amazon.awssdk.services.rekognition.model.Label;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import java.util.List;
 
@@ -14,18 +16,32 @@ import java.util.List;
 public class RekognitionService {
 
     private final RekognitionClient client;
+    private final Timer rekognitionTimer;
 
-    public RekognitionService(RekognitionClient client) {
+    public RekognitionService(RekognitionClient client, MeterRegistry meterRegistry) {
         this.client = client;
+        this.rekognitionTimer = Timer.builder("wishifai.rekognition.duration")
+                .description("Time Rekognition uses to analyse a picture")
+                .register(meterRegistry);
     }
 
     public List<String> detectLabels(byte[] bytes) {
-        DetectLabelsResponse resp = client.detectLabels(DetectLabelsRequest.builder()
-                .image(Image.builder().bytes(SdkBytes.fromByteArray(bytes)).build())
-                .maxLabels(20)
-                .minConfidence(70f)
-                .build());
+        Timer.Sample sample = Timer.start();
 
-        return resp.labels().stream().map(Label::name).toList();
+        try {
+            DetectLabelsResponse resp = client.detectLabels(DetectLabelsRequest.builder()
+                    .image(Image.builder()
+                            .bytes(SdkBytes.fromByteArray(bytes))
+                            .build())
+                    .maxLabels(20)
+                    .minConfidence(70f)
+                    .build());
+
+            return resp.labels().stream()
+                    .map(Label::name)
+                    .toList();
+        } finally {
+            sample.stop(rekognitionTimer);
+        }
     }
 }
