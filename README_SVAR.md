@@ -37,3 +37,20 @@ https://wi-f311228998ee485590d9ca0f43074768.ecs.eu-west-1.on.aws
 https://github.com/richardclaussen/PGR301-exam/actions/runs/42664430007
 
 ## 3A
+
+#### Jeg valgte følgende metrikker:
+
+**wishifai.rekognition.duration:**
+Timer for hvor lang tid Rekognition bruker på å analysere et bilde. Det gjør det mulig å følge med på ytelsen til bildeanalysen.
+
+**wishifai.bedrock.duration:**
+Timer for hvor lang tid Bedrock bruker på å generere gaveforslag. Brukes for å måle responstiden til språkmodellen.
+
+**wishifai.images.analyzed:**
+Counter for antall bilder som er analysert. Dette er en business-metrikk som viser hvor mye tjenesten faktisk brukes.
+
+**wishifai.gifts.generated:**
+Counter for totalt antall genererte gaveforslag. Relevant metrikk å ha med siden gavegenerering er tjenestens hovedfunksjon.
+ 
+**wishifai.gifts.per.request**
+DistributionSummary for antall gaveforslag per forespørsel. Siden prompten til språkmodellen ber om "inntil" 5 gaver, er det aktuelt å få en innsikt i hvor mange forslag brukerne vanligvis får per bildeanalyse.
