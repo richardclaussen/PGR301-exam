@@ -27,3 +27,15 @@ variable "bedrock_model_id" {
   type        = string
   default     = "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
 }
+
+variable "resource_prefix" {
+  description = "Prefix for unique resource names"
+  type        = string
+  default     = "wishifai-candidate50"
+}
+
+variable "ecs_cluster_name" {
+  description = "The name of the ECS cluster used by the Express service"
+  type        = string
+  default     = "default"
+}
