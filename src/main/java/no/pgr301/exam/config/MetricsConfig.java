@@ -24,12 +24,16 @@ public class MetricsConfig {
         return new CloudWatchConfig() {
             @Override
             public String get(String key) {
+                if ("cloudwatch.step".equals(key)) {
+                    return Duration.ofMinutes(1).toString();
+                }
+
                 return null;
             }
 
             @Override
             public String namespace() {
-                return "";
+                return "wishifai-candidate50";
             }
 
             @Override
@@ -41,7 +45,7 @@ public class MetricsConfig {
 
     @Bean
     public CloudWatchMeterRegistry cloudWatchMeterRegistry(CloudWatchConfig config,
-                                                           CloudWatchAsyncClient client) {
+            CloudWatchAsyncClient client) {
         return new CloudWatchMeterRegistry(config, Clock.SYSTEM, client);
     }
 }

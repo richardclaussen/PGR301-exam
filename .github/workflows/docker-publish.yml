@@ -70,6 +70,8 @@ jobs:
 
       - name: Terraform apply
         working-directory: infra
+        env:
+          TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
         run: |
           terraform apply \
             -input=false \
