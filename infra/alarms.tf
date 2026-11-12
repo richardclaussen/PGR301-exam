@@ -19,13 +19,12 @@ resource "aws_cloudwatch_metric_alarm" "bedrock_latency_high" {
   comparison_operator = "GreaterThanThreshold"
 
   namespace   = var.resource_prefix
-  metric_name = "wishifai.bedrock.duration"
+  metric_name = "wishifai.bedrock.duration.avg"
 
   statistic          = "Average"
   period             = 300
   evaluation_periods = 2
-  threshold          = 30
-  unit               = "Seconds"
+  threshold          = 30000
 
   treat_missing_data = "notBreaching"
 

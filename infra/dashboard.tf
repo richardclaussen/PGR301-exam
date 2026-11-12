@@ -19,7 +19,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.resource_prefix}",
-            "wishifai.images.analyzed"
+            "wishifai.images.analyzed.count"
           ]
         ],
         "period": 300,
@@ -38,7 +38,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.resource_prefix}",
-            "wishifai.gifts.generated"
+            "wishifai.gifts.generated.count"
           ]
         ],
         "period": 300,
@@ -88,7 +88,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "AWS/ECS",
-            "RunningTaskCount",
+            "LiveTaskCount",
             "ClusterName",
             "${var.ecs_cluster_name}",
             "ServiceName",
@@ -103,6 +103,27 @@ resource "aws_cloudwatch_dashboard" "main" {
     },
     {
       "type": "metric",
+      "x": 0,
+      "y": 12,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+        [
+          {
+            "expression": "SEARCH('{${var.resource_prefix},area,id} MetricName=\"jvm.memory.used.value\"', \"Average\", 300)",
+            "label": "JVM memory used",
+            "id": "jvmMemory"
+          }
+          ]
+        ],
+        "period": 300,
+        "region": "${var.aws_region}",
+        "title": "Applikasjon: JVM-memory"
+      }
+    },
+    {
+      "type": "metric",
       "x": 12,
       "y": 12,
       "width": 12,
@@ -111,11 +132,11 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.resource_prefix}",
-            "wishifai.bedrock.duration"
+            "wishifai.bedrock.duration.avg"
           ],
           [
             "${var.resource_prefix}",
-            "wishifai.rekognition.duration"
+            "wishifai.rekognition.duration.avg"
           ]
         ],
         "period": 300,

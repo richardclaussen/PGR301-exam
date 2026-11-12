@@ -54,3 +54,73 @@ Counter for totalt antall genererte gaveforslag. Relevant metrikk å ha med side
  
 **wishifai.gifts.per.request**
 DistributionSummary for antall gaveforslag per forespørsel. Siden prompten til språkmodellen ber om "inntil" 5 gaver, er det aktuelt å få en innsikt i hvor mange forslag brukerne vanligvis får per bildeanalyse.
+
+
+## 3B
+
+### Dashboard
+  
+
+**Dashboard-navn:**
+wishifai-candidate50-dashboard
+
+**Namespace:**
+wishifai-candidate50
+
+<br>
+
+**Business-metrikker:** <br>
+wishifai.images.analyzed.count - antall analyserte bilder <br>
+wishifai.gifts.generated.count - antall genererte gaveforslag
+
+Som nevnt i 3A så viser disse hvor mye tjenesten faktisk brukes, samt hvor mange gaveforslag tjenesten produserer.
+
+<br>
+
+**Infrastruktur-metrikker:** <br>
+CPUUtilization - CPU-bruk for ECS-tjenesten <br>
+MemoryUtilization - minnebruk for ECS-tjenesten <br>
+RunningTaskCount - antall kjørende ECS tasks
+
+Disse viser hvordan tjenesten bruker infrastrukturen og om ECS-tjenesten har kjørende tasks.
+
+<br>
+
+**Applikasjonsmetrikker:**
+jvm.memory.used.value - brukt JVM-minne <br>
+wishifai.bedrock.duration.avg - gjennomsnittlig responstid fra bedrock <br>
+wishifai.rekognition.duration.avg - gjennomsnittlig reponstid fra rekognition
+
+JVM-metrikken eksponeres via Spring Boot Actuator. Responstidmetrikkene er egne metrikker fra applikasjonen. 
+
+<br>
+
+![dashboard image](dashboard.png)
+
+<br>
+
+### Alarm
+
+Jeg la til en alarm for wishifai.bedrock.duration.avg. 
+Den heter wishifai-candidate50-bedrock-latency-high
+
+Alarmen går hvis gjennomsnittlig responstid fra Bedrock er over 30 sekunder i to femminuttersperioder på rad.
+Ettersom Bedrock er en sentral del av bildeanalyseflyten, er det aktuelt å ha en alarm for høy responstid fordi det gir brukerne en tregere tjeneste og det kan indikere at det er problemer med Bedrock-kallet eller økt belastning.
+
+Alarmen sender varsling til e-postadressen som er konfigurert gjennom GitHub Secret ALERT_EMAIL via et SNS-topic.
+Jeg testet å sende en e-post via topicet i AWS-konsollen, og det funket.
+
+<br>
+
+![test mail image](test-mail.jpg)
+
+### Testing av dashbordet
+
+Jeg testet dashboardet ved å kjøre denne kommandoen som sto oppført i eksamensteksten:
+```bash
+curl -F "image=@samples/sample_image.png" http://localhost:8080/api/analyze
+```
+Responsen var HTTP 200 og dataen dukket opp på dashboardet, som tidligere vist med bilde. Det tok bare litt tid før dataen dukket opp, ettersom dashbordet sjekker femminuttersperioder.
+
+
+
