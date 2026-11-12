@@ -1,3 +1,10 @@
+## Generelt
+Repoet bruker følgende Actions secrets:
+#### ALERT_EMAIL
+#### AWS_ACCESS_KEY_ID
+#### AWS_SECRET_ACCESS_KEY
+#### AWS_REGION <br>
+
 ## 1A 
 #### Spring Boot-applikasjonen er containerisert. Kjør følgende kommandoer:
 
@@ -80,7 +87,7 @@ Som nevnt i 3A så viser disse hvor mye tjenesten faktisk brukes, samt hvor mang
 **Infrastruktur-metrikker:** <br>
 CPUUtilization - CPU-bruk for ECS-tjenesten <br>
 MemoryUtilization - minnebruk for ECS-tjenesten <br>
-RunningTaskCount - antall kjørende ECS tasks
+LiveTaskCount - antall kjørende ECS tasks
 
 Disse viser hvordan tjenesten bruker infrastrukturen og om ECS-tjenesten har kjørende tasks.
 
@@ -121,6 +128,19 @@ Jeg testet dashboardet ved å kjøre denne kommandoen som sto oppført i eksamen
 curl -F "image=@samples/sample_image.png" http://localhost:8080/api/analyze
 ```
 Responsen var HTTP 200 og dataen dukket opp på dashboardet, som tidligere vist med bilde. Det tok bare litt tid før dataen dukket opp, ettersom dashbordet sjekker femminuttersperioder.
+
+## 4
+
+Generativ AI utfordrer tradisjonell DevOps ettersom selve applikasjonen kan fungere rent teknisk, men innholdet den produserer kan være feil, misvisende eller skadelig. Testing, kontinuerlig leveranse og overvåking må derfor kontrollere både programvaren og kvaliteten på svaret som språkmodellen genererer. Hvor strengt dette må kontrolleres er avhengig av hvor store konsekvensene vil være dersom systemet gjør feil.
+
+Vanligvis går testing ut på at et bestemt input skal gi et bestemt output. En språkmodell kan derimot gi ulike svar på samme spørsmål og er dermed ikke-deterministisk. Tradisjonell testing alene er derfor ikke tilstrekkelig. I stedet kan det være aktuelt å ha et fast sett med spørsmål som brukes for å evaluere svarene fra modellen. Svarene kan vurderes etter kriterier som korrekthet, relevans og alderspassende innhold. For automatiske tester som kjøres ved push av kode, kan man bruke en språkmodell for å utføre vurderingen, men ettersom den også kan gjøre feil her burde det kombineres med menneskelige stikkprøver. 
+
+Kontinuerlig leveranse blir også mer komplisert. Det er ikke bare kildekoden som påvirker systemet, men også faktorer som prompt og modellversjon. Disse komponentene burde versjoneres, og kombinasjonen som brukes i prod burde kunne spores for å vite nøyaktig hvilken konfigurasjon som er deployet. Endringer kan først aktiveres med feature flags eller canary release for en liten andel brukere, og dersom kvaliteten på svarene til modellen ikke er bra nok må det være mulig å rulle tilbake både modellen og prompten. 
+
+Overvåking burde gå på mer enn bare responstid og tekniske feil. Metrikker for tokenforbruk og kostnad er 	svært relevante. Det er også aktuelt å ha en oversikt over rapporterte svar og eventuelle endringer i svarlengde eller innhold, men dette er vanskelig å måle kvaliteten til automatisk, så menneskelige stikkprøver er viktige her også. Wishifai-løsningen min overvåker for eksempel gjennomsnittlig responstid på Bedrock og har en alarm om den skulle overstige en bestemt verdi. Den oppdager altså et eventuelt teknisk problem, men modellen kan fortsatt svare raskt og foreslå en uegnet eller farlig gave. 
+
+Tiltakene må tilpasses risikoen. I Wishifai kan enkelte uheldige anbefalinger aksepteres, men i en bank eller medisinsk tjeneste burde det kreves strengere testing, faglig godkjenning og gradvis prodsetting. Språkmodellen kan ikke ta avgjørelser alene i disse tilfellene. Ansvarlig DevOps for generativ AI innebærer altså at kontrollnivået øker sammen med potensiell skade. 
+
 
 
 
